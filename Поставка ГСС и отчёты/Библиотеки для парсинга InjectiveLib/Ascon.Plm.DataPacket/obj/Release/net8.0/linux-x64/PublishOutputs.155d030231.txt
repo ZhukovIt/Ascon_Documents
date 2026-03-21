@@ -1,0 +1,3 @@
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотеки для парсинга InjectiveLib\Bin\Ascon.Plm.DataPacket.publish\linux-x64\Ascon.Plm.DataPacket.dll
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотеки для парсинга InjectiveLib\Bin\Ascon.Plm.DataPacket.publish\linux-x64\Ascon.Plm.DataPacket.deps.json
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотеки для парсинга InjectiveLib\Bin\Ascon.Plm.DataPacket.publish\linux-x64\Ascon.Plm.DataPacket.pdb

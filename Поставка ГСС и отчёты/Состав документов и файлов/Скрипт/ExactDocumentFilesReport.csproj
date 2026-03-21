@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Ascon.Plm.DataPacket">
+      <HintPath>Assemblies\Ascon.Plm.DataPacket.dll</HintPath>
+    </Reference>
+    <Reference Include="Ascon.Plm.Mapping">
+      <HintPath>Assemblies\Ascon.Plm.Mapping.dll</HintPath>
+    </Reference>
+    <Reference Include="Ascon.Plm.ServerApi">
+      <HintPath>Assemblies\Ascon.Plm.ServerApi.dll</HintPath>
+    </Reference>
+    <Reference Include="LocalStorage">
+      <HintPath>Assemblies\LocalStorage.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

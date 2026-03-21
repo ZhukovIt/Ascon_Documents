@@ -1,0 +1,11 @@
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотека Ascon.Plm.DataPacketReader\Ascon.Plm.DataPacketReader\bin\Release\net8.0\Ascon.Plm.DataPacketReader.deps.json
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотека Ascon.Plm.DataPacketReader\Ascon.Plm.DataPacketReader\bin\Release\net8.0\Ascon.Plm.DataPacketReader.dll
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотека Ascon.Plm.DataPacketReader\Ascon.Plm.DataPacketReader\bin\Release\net8.0\Ascon.Plm.DataPacketReader.pdb
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотека Ascon.Plm.DataPacketReader\Ascon.Plm.DataPacketReader\obj\Release\net8.0\Ascon.Plm.DataPacketReader.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотека Ascon.Plm.DataPacketReader\Ascon.Plm.DataPacketReader\obj\Release\net8.0\Ascon.Plm.DataPacketReader.AssemblyInfoInputs.cache
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотека Ascon.Plm.DataPacketReader\Ascon.Plm.DataPacketReader\obj\Release\net8.0\Ascon.Plm.DataPacketReader.AssemblyInfo.cs
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотека Ascon.Plm.DataPacketReader\Ascon.Plm.DataPacketReader\obj\Release\net8.0\Ascon.Plm.DataPacketReader.csproj.CoreCompileInputs.cache
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотека Ascon.Plm.DataPacketReader\Ascon.Plm.DataPacketReader\obj\Release\net8.0\Ascon.Plm.DataPacketReader.dll
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотека Ascon.Plm.DataPacketReader\Ascon.Plm.DataPacketReader\obj\Release\net8.0\refint\Ascon.Plm.DataPacketReader.dll
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотека Ascon.Plm.DataPacketReader\Ascon.Plm.DataPacketReader\obj\Release\net8.0\Ascon.Plm.DataPacketReader.pdb
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотека Ascon.Plm.DataPacketReader\Ascon.Plm.DataPacketReader\obj\Release\net8.0\ref\Ascon.Plm.DataPacketReader.dll

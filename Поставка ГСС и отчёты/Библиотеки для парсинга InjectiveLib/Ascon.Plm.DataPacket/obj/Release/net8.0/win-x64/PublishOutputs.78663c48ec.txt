@@ -1,0 +1,3 @@
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотека Ascon.Plm.DataPacketReader\Ascon.Plm.DataPacketReader\bin\Release\net8.0\publish\win-x64\Ascon.Plm.DataPacketReader.dll
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотека Ascon.Plm.DataPacketReader\Ascon.Plm.DataPacketReader\bin\Release\net8.0\publish\win-x64\Ascon.Plm.DataPacketReader.deps.json
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотека Ascon.Plm.DataPacketReader\Ascon.Plm.DataPacketReader\bin\Release\net8.0\publish\win-x64\Ascon.Plm.DataPacketReader.pdb

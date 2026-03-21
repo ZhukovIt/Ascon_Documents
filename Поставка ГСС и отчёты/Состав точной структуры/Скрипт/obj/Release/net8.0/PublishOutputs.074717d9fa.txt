@@ -1,0 +1,5 @@
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав точной структуры\Скрипт\exec\ExactProductStructureReport.exe
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав точной структуры\Скрипт\exec\ExactProductStructureReport.dll
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав точной структуры\Скрипт\exec\ExactProductStructureReport.deps.json
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав точной структуры\Скрипт\exec\ExactProductStructureReport.runtimeconfig.json
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав точной структуры\Скрипт\exec\ExactProductStructureReport.pdb

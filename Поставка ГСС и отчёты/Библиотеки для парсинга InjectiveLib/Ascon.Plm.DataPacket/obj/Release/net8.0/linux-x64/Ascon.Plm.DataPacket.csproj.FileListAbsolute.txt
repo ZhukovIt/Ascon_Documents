@@ -1,0 +1,11 @@
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотеки для парсинга InjectiveLib\Bin\Ascon.Plm.DataPacket\net8.0\linux-x64\Ascon.Plm.DataPacket.deps.json
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотеки для парсинга InjectiveLib\Bin\Ascon.Plm.DataPacket\net8.0\linux-x64\Ascon.Plm.DataPacket.dll
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотеки для парсинга InjectiveLib\Bin\Ascon.Plm.DataPacket\net8.0\linux-x64\Ascon.Plm.DataPacket.pdb
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотеки для парсинга InjectiveLib\Ascon.Plm.DataPacket\obj\Release\net8.0\linux-x64\Ascon.Plm.DataPacket.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотеки для парсинга InjectiveLib\Ascon.Plm.DataPacket\obj\Release\net8.0\linux-x64\Ascon.Plm.DataPacket.AssemblyInfoInputs.cache
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотеки для парсинга InjectiveLib\Ascon.Plm.DataPacket\obj\Release\net8.0\linux-x64\Ascon.Plm.DataPacket.AssemblyInfo.cs
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотеки для парсинга InjectiveLib\Ascon.Plm.DataPacket\obj\Release\net8.0\linux-x64\Ascon.Plm.DataPacket.csproj.CoreCompileInputs.cache
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотеки для парсинга InjectiveLib\Ascon.Plm.DataPacket\obj\Release\net8.0\linux-x64\Ascon.Plm.DataPacket.dll
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотеки для парсинга InjectiveLib\Ascon.Plm.DataPacket\obj\Release\net8.0\linux-x64\refint\Ascon.Plm.DataPacket.dll
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотеки для парсинга InjectiveLib\Ascon.Plm.DataPacket\obj\Release\net8.0\linux-x64\Ascon.Plm.DataPacket.pdb
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотеки для парсинга InjectiveLib\Ascon.Plm.DataPacket\obj\Release\net8.0\linux-x64\ref\Ascon.Plm.DataPacket.dll

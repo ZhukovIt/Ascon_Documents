@@ -1,0 +1,14 @@
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав точной структуры\Скрипт\bin\Release\net8.0\ExactProductStructureReport.exe
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав точной структуры\Скрипт\bin\Release\net8.0\ExactProductStructureReport.deps.json
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав точной структуры\Скрипт\bin\Release\net8.0\ExactProductStructureReport.runtimeconfig.json
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав точной структуры\Скрипт\bin\Release\net8.0\ExactProductStructureReport.dll
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав точной структуры\Скрипт\bin\Release\net8.0\ExactProductStructureReport.pdb
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав точной структуры\Скрипт\obj\Release\net8.0\ExactProductStructureReport.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав точной структуры\Скрипт\obj\Release\net8.0\ExactProductStructureReport.AssemblyInfoInputs.cache
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав точной структуры\Скрипт\obj\Release\net8.0\ExactProductStructureReport.AssemblyInfo.cs
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав точной структуры\Скрипт\obj\Release\net8.0\ExactProductStructureReport.csproj.CoreCompileInputs.cache
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав точной структуры\Скрипт\obj\Release\net8.0\ExactProductStructureReport.dll
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав точной структуры\Скрипт\obj\Release\net8.0\refint\ExactProductStructureReport.dll
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав точной структуры\Скрипт\obj\Release\net8.0\ExactProductStructureReport.pdb
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав точной структуры\Скрипт\obj\Release\net8.0\ExactProductStructureReport.genruntimeconfig.cache
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав точной структуры\Скрипт\obj\Release\net8.0\ref\ExactProductStructureReport.dll

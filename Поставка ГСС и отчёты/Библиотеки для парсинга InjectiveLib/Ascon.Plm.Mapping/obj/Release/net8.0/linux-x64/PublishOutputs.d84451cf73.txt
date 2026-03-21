@@ -1,0 +1,5 @@
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотеки для парсинга InjectiveLib\Bin\Ascon.Plm.Mapping.publish\linux-x64\Ascon.Plm.Mapping.dll
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотеки для парсинга InjectiveLib\Bin\Ascon.Plm.Mapping.publish\linux-x64\Ascon.Plm.Mapping.deps.json
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотеки для парсинга InjectiveLib\Bin\Ascon.Plm.Mapping.publish\linux-x64\Ascon.Plm.Mapping.pdb
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотеки для парсинга InjectiveLib\Bin\Ascon.Plm.Mapping.publish\linux-x64\Ascon.Plm.DataPacket.dll
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотеки для парсинга InjectiveLib\Bin\Ascon.Plm.Mapping.publish\linux-x64\Ascon.Plm.DataPacket.pdb

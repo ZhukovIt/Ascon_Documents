@@ -1,0 +1,17 @@
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав документов и файлов\Скрипт\bin\Release\net8.0\ExactDocumentFilesReport.deps.json
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав документов и файлов\Скрипт\bin\Release\net8.0\ExactDocumentFilesReport.dll
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав документов и файлов\Скрипт\bin\Release\net8.0\ExactDocumentFilesReport.pdb
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав документов и файлов\Скрипт\bin\Release\net8.0\Ascon.Plm.DataPacket.dll
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав документов и файлов\Скрипт\bin\Release\net8.0\Ascon.Plm.Mapping.dll
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав документов и файлов\Скрипт\bin\Release\net8.0\Ascon.Plm.ServerApi.dll
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав документов и файлов\Скрипт\bin\Release\net8.0\LocalStorage.dll
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав документов и файлов\Скрипт\obj\Release\net8.0\ExactDocumentFilesReport.csproj.AssemblyReference.cache
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав документов и файлов\Скрипт\obj\Release\net8.0\ExactDocumentFilesReport.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав документов и файлов\Скрипт\obj\Release\net8.0\ExactDocumentFilesReport.AssemblyInfoInputs.cache
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав документов и файлов\Скрипт\obj\Release\net8.0\ExactDocumentFilesReport.AssemblyInfo.cs
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав документов и файлов\Скрипт\obj\Release\net8.0\ExactDocumentFilesReport.csproj.CoreCompileInputs.cache
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав документов и файлов\Скрипт\obj\Release\net8.0\ExactDoc.1D35462C.Up2Date
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав документов и файлов\Скрипт\obj\Release\net8.0\ExactDocumentFilesReport.dll
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав документов и файлов\Скрипт\obj\Release\net8.0\refint\ExactDocumentFilesReport.dll
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав документов и файлов\Скрипт\obj\Release\net8.0\ExactDocumentFilesReport.pdb
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Состав документов и файлов\Скрипт\obj\Release\net8.0\ref\ExactDocumentFilesReport.dll

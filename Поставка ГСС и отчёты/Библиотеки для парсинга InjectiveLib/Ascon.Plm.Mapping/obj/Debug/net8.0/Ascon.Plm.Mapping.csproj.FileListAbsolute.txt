@@ -1,0 +1,22 @@
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Ascon.Plm.Mapping\bin\Debug\net8.0\Ascon.Plm.Mapping.deps.json
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Ascon.Plm.Mapping\bin\Debug\net8.0\Ascon.Plm.Mapping.dll
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Ascon.Plm.Mapping\bin\Debug\net8.0\Ascon.Plm.Mapping.pdb
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Ascon.Plm.Mapping\obj\Debug\net8.0\Ascon.Plm.Mapping.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Ascon.Plm.Mapping\obj\Debug\net8.0\Ascon.Plm.Mapping.AssemblyInfoInputs.cache
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Ascon.Plm.Mapping\obj\Debug\net8.0\Ascon.Plm.Mapping.AssemblyInfo.cs
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Ascon.Plm.Mapping\obj\Debug\net8.0\Ascon.Plm.Mapping.csproj.CoreCompileInputs.cache
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Ascon.Plm.Mapping\obj\Debug\net8.0\Ascon.Plm.Mapping.dll
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Ascon.Plm.Mapping\obj\Debug\net8.0\refint\Ascon.Plm.Mapping.dll
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Ascon.Plm.Mapping\obj\Debug\net8.0\Ascon.Plm.Mapping.pdb
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Ascon.Plm.Mapping\obj\Debug\net8.0\ref\Ascon.Plm.Mapping.dll
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотеки для парсинга InjectiveLib\Bin\Ascon.Plm.Mapping\net8.0\Ascon.Plm.Mapping.deps.json
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотеки для парсинга InjectiveLib\Bin\Ascon.Plm.Mapping\net8.0\Ascon.Plm.Mapping.dll
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотеки для парсинга InjectiveLib\Bin\Ascon.Plm.Mapping\net8.0\Ascon.Plm.Mapping.pdb
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотеки для парсинга InjectiveLib\Ascon.Plm.Mapping\obj\Debug\net8.0\Ascon.Plm.Mapping.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотеки для парсинга InjectiveLib\Ascon.Plm.Mapping\obj\Debug\net8.0\Ascon.Plm.Mapping.AssemblyInfoInputs.cache
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотеки для парсинга InjectiveLib\Ascon.Plm.Mapping\obj\Debug\net8.0\Ascon.Plm.Mapping.AssemblyInfo.cs
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотеки для парсинга InjectiveLib\Ascon.Plm.Mapping\obj\Debug\net8.0\Ascon.Plm.Mapping.csproj.CoreCompileInputs.cache
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотеки для парсинга InjectiveLib\Ascon.Plm.Mapping\obj\Debug\net8.0\Ascon.Plm.Mapping.dll
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотеки для парсинга InjectiveLib\Ascon.Plm.Mapping\obj\Debug\net8.0\refint\Ascon.Plm.Mapping.dll
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотеки для парсинга InjectiveLib\Ascon.Plm.Mapping\obj\Debug\net8.0\Ascon.Plm.Mapping.pdb
+C:\Users\LocalUser2\Desktop\Projects\Тестовые отчёты в ГСС\Библиотеки для парсинга InjectiveLib\Ascon.Plm.Mapping\obj\Debug\net8.0\ref\Ascon.Plm.Mapping.dll

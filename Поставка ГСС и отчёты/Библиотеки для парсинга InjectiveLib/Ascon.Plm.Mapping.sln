@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35327.3
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ascon.Plm.DataPacket", "Ascon.Plm.DataPacket\Ascon.Plm.DataPacket.csproj", "{A26E6110-9BB8-4832-B90F-C37FCFFEFC30}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ascon.Plm.Mapping", "Ascon.Plm.Mapping\Ascon.Plm.Mapping.csproj", "{DDF03364-5062-47D0-9E1A-C9E0336AF7CD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A26E6110-9BB8-4832-B90F-C37FCFFEFC30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A26E6110-9BB8-4832-B90F-C37FCFFEFC30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A26E6110-9BB8-4832-B90F-C37FCFFEFC30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A26E6110-9BB8-4832-B90F-C37FCFFEFC30}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DDF03364-5062-47D0-9E1A-C9E0336AF7CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDF03364-5062-47D0-9E1A-C9E0336AF7CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDF03364-5062-47D0-9E1A-C9E0336AF7CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDF03364-5062-47D0-9E1A-C9E0336AF7CD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {245D9065-9585-4F9C-9BA9-E24E00A73AA8}
+	EndGlobalSection
+EndGlobal

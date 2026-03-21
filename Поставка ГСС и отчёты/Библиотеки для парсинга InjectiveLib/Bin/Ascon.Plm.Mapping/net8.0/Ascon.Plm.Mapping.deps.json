@@ -1,0 +1,39 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "Ascon.Plm.Mapping/1.0.0": {
+        "dependencies": {
+          "Ascon.Plm.DataPacket": "1.0.0"
+        },
+        "runtime": {
+          "Ascon.Plm.Mapping.dll": {}
+        }
+      },
+      "Ascon.Plm.DataPacket/1.0.0": {
+        "runtime": {
+          "Ascon.Plm.DataPacket.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Ascon.Plm.Mapping/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Ascon.Plm.DataPacket/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
