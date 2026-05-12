@@ -22,6 +22,12 @@ namespace ExactDocumentFilesReport
         public Dictionary<string, object?> Parameters { get; set; } = new();
 
         /// <summary>
+        /// Параметры версионного конфигурирования.
+        /// </summary>
+        [JsonPropertyName("conf_rules")]
+        public ConfRules? ConfRules { get; set; }
+
+        /// <summary>
         /// Создаёт объект конфигурации приложения на основе сериализованных настроек.
         /// </summary>
         /// <param name="rawData">Сериализованные настройки приложения.</param>
@@ -113,5 +119,37 @@ namespace ExactDocumentFilesReport
 
             throw new InvalidOperationException("Не удалось получить значение параметра \"Название типа связи для отбора документов\"");
         }
+    }
+
+    public class ConfRules
+    {
+
+        [JsonPropertyName("contextId")]
+        public int ContextId { get; set; }
+
+        [JsonPropertyName("ruleId")]
+        public int RuleId { get; set; }
+
+        [JsonPropertyName("endVersionId")]
+        public int EndVersionid { get; set; }
+
+        [JsonPropertyName("quickAttrs")]
+        public List<QuickAttrs> QuickAttrs { get; set; } = new();
+    }
+
+    public class QuickAttrs
+    {
+
+        [JsonPropertyName("isState")]
+        public bool IsState { get; set; }
+
+        [JsonPropertyName("attrTypeId")]
+        public int Typeid { get; set; }
+
+        [JsonPropertyName("attrValue")]
+        public string ParamValue { get; set; } = string.Empty;
+
+        [JsonPropertyName("anyValue")]
+        public bool AnyValue { get; set; }
     }
 }
