@@ -26,14 +26,14 @@ namespace ExactProductStructureReport
         {
             if (items == null)
             {
-                Console.WriteLine("Нет данных для отображения");
+                Console.WriteLine("[]");
                 return;
             }
 
             var itemsList = items.ToList();
             if (itemsList.Count == 0)
             {
-                Console.WriteLine("Нет данных для отображения");
+                Console.WriteLine("[]");
                 return;
             }
 

@@ -102,34 +102,33 @@ namespace ExactProductStructureReport
 
     public class ConfRules
     {
-        [JsonPropertyName("rule_id")]
+
+        [JsonPropertyName("contextId")]
+        public int ContextId { get; set; }
+
+        [JsonPropertyName("ruleId")]
         public int RuleId { get; set; }
 
-        [JsonPropertyName("final_product_id")]
-        public int FinalProductId { get; set; }
+        [JsonPropertyName("endVersionId")]
+        public int EndVersionid { get; set; }
 
-        [JsonPropertyName("path")]
-        public List<int> Path { get; set; } = new();
-
-        [JsonPropertyName("rule_params")]
-        public List<RuleParam> RuleParams { get; set; } = new();
-
-        [JsonPropertyName("fixed_context_id")]
-        public int FixedContextId { get; set; }
+        [JsonPropertyName("quickAttrs")]
+        public List<QuickAttrs> QuickAttrs { get; set; } = new();
     }
 
-    public class RuleParam
+    public class QuickAttrs
     {
-        [JsonPropertyName("param_name")]
-        public string ParamName { get; set; } = string.Empty;
 
-        [JsonPropertyName("param_type")]
-        public int ParamType { get; set; }
+        [JsonPropertyName("isState")]
+        public bool IsState { get; set; }
 
-        [JsonPropertyName("param_value")]
+        [JsonPropertyName("attrTypeId")]
+        public int Typeid { get; set; }
+
+        [JsonPropertyName("attrValue")]
         public string ParamValue { get; set; } = string.Empty;
 
-        [JsonPropertyName("is_any")]
-        public bool IsAny { get; set; }
+        [JsonPropertyName("anyValue")]
+        public bool AnyValue { get; set; }
     }
 }

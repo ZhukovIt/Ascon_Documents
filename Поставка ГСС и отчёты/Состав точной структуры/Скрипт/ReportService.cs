@@ -99,10 +99,6 @@ namespace ExactProductStructureReport
                 {
                     try
                     {
-                        if (row.IdVersion == 965)
-                        {
-
-                        }
                         var attributes = await _apiClient.GetVersionAttributesAsync(row.IdVersion);
                         row.Name = attributes
                             .FirstOrDefault(x => x.name == "Наименование")?.value ?? string.Empty;
@@ -146,9 +142,6 @@ namespace ExactProductStructureReport
         {
             if (string.IsNullOrWhiteSpace(weightStr))
                 return string.Empty;
-
-            // Замена точки на запятую для корректного парсинга
-            //weightStr = weightStr.Replace(".", ",");
 
             if (!double.TryParse(weightStr, NumberStyles.Any, CultureInfo.InvariantCulture, out double weight))
                 return string.Empty;
