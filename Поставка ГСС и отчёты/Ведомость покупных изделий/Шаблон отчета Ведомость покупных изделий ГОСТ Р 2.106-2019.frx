@@ -1,0 +1,703 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" StartReportEvent="_StartReport" ReportInfo.Created="04/23/2026 10:22:30" ReportInfo.Modified="05/12/2026 12:00:50" ReportInfo.CreatorVersion="2026.1.3.0">
+  <ScriptText>using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Data;
+using FastReport;
+using FastReport.Data;
+using FastReport.Dialog;
+using FastReport.Barcode;
+using FastReport.Table;
+using FastReport.Utils;
+
+
+namespace FastReport
+{
+  public class ReportScript
+  {
+    private int nameNom;
+    private List&lt;string&gt; slMemoName;
+    private List&lt;string&gt; list;
+    
+    // Константы
+    private const float PAGEFOOTER1_HEIGHT = 188.97f;
+    private const float PAGEFOOTER2_HEIGHT = 76.0f;
+    //private const string TAG_NOWRAP = &quot;&lt;span style=\&quot;white-space: nowrap;\&quot;&gt;&quot;;
+    //private const string END_TAG = &quot;&lt;/span&gt;&quot;;      
+    
+    // Константы управления отчетом
+    private const int ADDSTR_BEETWEEN = 1;  // кол-во пустых строк между записями
+    private const int GROUPHEADER1_KEEPTOGETHER = 1;
+    
+    
+  #region Вспомогательные методы для работы с текстом
+    
+    public static List&lt;string&gt; SplitByPixelLength(TextObject aTextObject, string text)
+    {
+            
+      var lines = new List&lt;string&gt;();
+      var words = text.Split(' ');
+      var currentLine = &quot;&quot;;
+      float maxPixelWidth = aTextObject.Width;
+
+      // Create a dummy bitmap for MeasureString
+      using (var bmp = new Bitmap(1, 1))
+      using (var g = Graphics.FromImage(bmp))
+      {
+        foreach (var word in words)
+        {
+          string potentialLine = string.IsNullOrEmpty(currentLine) ? word : currentLine + &quot; &quot; + word;
+            
+          // Measure the width of the potential line
+          var size = g.MeasureString(potentialLine, aTextObject.Font);
+
+          if (size.Width &gt; maxPixelWidth)
+          {
+            // Line is too long, add currentLine to list and start new line
+            lines.Add(currentLine);
+            currentLine = word;
+          }
+          else
+          {
+            currentLine = potentialLine;
+          }
+        }
+        lines.Add(currentLine); // Add the last line
+      }
+      
+      return lines;
+    }
+    
+        
+    private string SeekNTD(string stText, string NTD)
+    {
+      int posStart = stText.IndexOf(NTD);
+      if (posStart &lt; 0)
+        return &quot;&quot;;
+        
+      string result = &quot;&quot;;
+      int lenNTD = 0;
+      string SymbolNTD = stText.Substring(posStart, 1);
+        
+      for (int ii = 1; ii &lt;= NTD.Length; ii++)
+      {
+        result += SymbolNTD;
+        lenNTD++;
+        if (posStart + lenNTD &lt; stText.Length)
+          SymbolNTD = stText.Substring(posStart + lenNTD, 1);
+      }
+        
+      for (int ii = lenNTD; ii &lt;= stText.Length; ii++)
+      {
+        result += SymbolNTD;
+        lenNTD++;
+        if (posStart + lenNTD &lt; stText.Length)
+          SymbolNTD = stText.Substring(posStart + lenNTD, 1);
+        else
+          break;
+            
+        if (SymbolNTD == &quot;/&quot; || SymbolNTD == &quot; &quot; || SymbolNTD == &quot;,&quot;)
+          break;
+      }
+        
+      return result;
+    }
+    
+    
+    private string GetCustomNTD(string stText, out int posNTD, out int lenNTD)
+    {
+      string stNTD = SeekNTD(stText, &quot;ГОСТ Р &quot;);
+      if (string.IsNullOrEmpty(stNTD))
+        stNTD = SeekNTD(stText, &quot;ГОСТ &quot;);
+      if (string.IsNullOrEmpty(stNTD))
+        stNTD = SeekNTD(stText, &quot;ОСТ &quot;);
+      if (string.IsNullOrEmpty(stNTD))
+        stNTD = SeekNTD(stText, &quot;СТО &quot;);
+      if (string.IsNullOrEmpty(stNTD))
+        stNTD = SeekNTD(stText, &quot;СТП &quot;);
+      if (string.IsNullOrEmpty(stNTD))
+        stNTD = SeekNTD(stText, &quot;ТУ &quot;);
+        
+      posNTD = stText.IndexOf(stNTD);
+      lenNTD = !string.IsNullOrEmpty(stNTD) ? stNTD.Length : 0;
+      
+      //заменим внутри НТД простой пробел неразрывным
+      stNTD = stNTD.Replace(&quot; &quot;, &quot;\u00A0&quot;);
+      
+      if (!string.IsNullOrEmpty(stNTD))
+        return stNTD;
+        
+      return &quot;&quot;;
+    }
+    
+    
+    private string NoWrapNTD(string stMemoText)
+    {
+      string stResult = &quot;&quot;;
+      string remainingText = stMemoText;
+        
+      while (remainingText.Length &gt; 0)
+      {
+        int posNTD, lenNTD;
+        string stNTD = GetCustomNTD(remainingText, out posNTD, out lenNTD);
+            
+        if (posNTD == 0 || string.IsNullOrEmpty(stNTD))
+        {
+          stResult += remainingText;
+          remainingText = &quot;&quot;;
+        }
+        else
+        {
+          stResult += remainingText.Substring(0, posNTD) + stNTD;
+          int startIndex = posNTD + lenNTD;
+          remainingText = startIndex &lt; remainingText.Length ? remainingText.Substring(startIndex) : &quot;&quot;;
+        }
+      }
+        
+      return stResult;
+    }
+    
+  #endregion
+    
+  #region Управление страницами
+    
+    private void FillMemosLists(ArrayList fList, ArrayList secList)
+    {
+      fList.Add(Memo28);
+      fList.Add(Memo29);
+      fList.Add(Memo36);
+      fList.Add(Memo37);
+      fList.Add(Memo39);
+      fList.Add(Memo48);
+      fList.Add(Memo50);
+      fList.Add(Memo51);
+      fList.Add(Memo52);
+      fList.Add(Memo53);
+      fList.Add(Memo54);
+      fList.Add(Memo56);
+      fList.Add(Memo57);
+      fList.Add(Memo59);
+      fList.Add(Memo60);
+      fList.Add(Memo61);
+      fList.Add(Memo62);
+      fList.Add(Memo64);
+      fList.Add(Memo65);
+      fList.Add(Memo66);
+      fList.Add(Memo67);
+      fList.Add(Memo68);
+      fList.Add(Memo69);
+      fList.Add(Memo70);
+      fList.Add(Memo71);
+      fList.Add(Memo74);
+      fList.Add(Memo75);
+      fList.Add(Memo76);
+      fList.Add(Memo77);
+      fList.Add(Memo78);
+      fList.Add(Memo79);
+      fList.Add(Memo80);
+      fList.Add(Memo81);
+      fList.Add(Memo90);
+      fList.Add(Memo91);
+      fList.Add(Memo92);
+        
+      secList.Add(Page2_Memo28);
+      secList.Add(Page2_Memo30);
+      secList.Add(Page2_Memo31);
+      secList.Add(Page2_Memo105);
+      secList.Add(Page2_Memo106);
+      secList.Add(Page2_Memo107);
+      secList.Add(Page2_Memo108);
+      secList.Add(Page2_Memo109);
+      secList.Add(Page2_Memo110);
+      secList.Add(Page2_Memo111);
+      secList.Add(Page2_Memo112);
+      secList.Add(Page2_Memo113);
+      secList.Add(Page2_Memo115);
+      secList.Add(Page2_Memo116);
+      secList.Add(Page2_Memo117);
+      secList.Add(Page2_Memo118);
+      secList.Add(Page2_Memo29);
+      secList.Add(Page2_Memo32);
+      secList.Add(Page2_Memo30);
+      
+      secList.Add(Page2_Memo114);
+      secList.Add(Page2_Memo55);
+      secList.Add(Page2_Memo49);
+     
+      secList.Add(Over_Memo28);
+      secList.Add(Over_Memo29);
+      secList.Add(Over_Memo30);
+    }
+    
+    
+    private void PrintFirstPage(ArrayList fList, ArrayList secList)
+    {
+      PageFooter1.Height = PAGEFOOTER1_HEIGHT;
+        
+      for (int i = 0; i &lt; fList.Count; i++)
+      {
+        ((TextObject)fList[i]).Visible = true;
+      }
+        
+      for (int i = 0; i &lt; secList.Count; i++)
+      {
+        ((TextObject)secList[i]).Visible = false;
+      }
+      
+      Over_Line1.Top = PageHeader1.Height;
+      Over_Line2.Top = PageHeader1.Height;
+      Over_Line3.Top = PageHeader1.Height;
+      Over_Line4.Top = PageHeader1.Height;
+      Over_Line5.Top = PageHeader1.Height;
+      Over_Line6.Top = PageHeader1.Height;
+      Over_Line7.Top = PageHeader1.Height;
+      Over_Line8.Top = PageHeader1.Height;
+      Over_Line9.Top = PageHeader1.Height;
+      Over_Line10.Top = PageHeader1.Height;
+      Over_Line11.Top = PageHeader1.Height;
+      Over_Line12.Top = PageHeader1.Height;
+        
+/*      Over_Line1.Height = Overlay1.Height-PageHeader1.Height;
+      Over_Line2.Height = Overlay1.Height-PageHeader1.Height;
+      Over_Line3.Height = Overlay1.Height-PageHeader1.Height;
+      Over_Line4.Height = Overlay1.Height-PageHeader1.Height;
+      Over_Line5.Height = Overlay1.Height-PageHeader1.Height;
+      Over_Line6.Height = Overlay1.Height-PageHeader1.Height;
+      Over_Line7.Height = Overlay1.Height-PageHeader1.Height;
+      Over_Line8.Height = Overlay1.Height-PageHeader1.Height;
+      Over_Line9.Height = Overlay1.Height-PageHeader1.Height;
+      Over_Line10.Height = Overlay1.Height-PageHeader1.Height;
+ */   
+      Over_Line11.Height = Overlay1.Height-PageHeader1.Height;
+      Over_Line12.Height = Overlay1.Height-PageHeader1.Height;
+  
+      Line27.Visible = false;
+      Line28.Visible = false;
+      Line29.Visible = false;
+      Line30.Visible = false;
+
+      sht_Line3.Visible = true;
+      sht_Line4.Visible = true;
+      
+    }
+    
+    
+    private void PrintOtherPages(ArrayList fList, ArrayList secList)
+    {
+      PageFooter1.Height = PAGEFOOTER2_HEIGHT;
+      float hDiff = PAGEFOOTER1_HEIGHT - PAGEFOOTER2_HEIGHT;
+      Overlay1.Height = 896 + hDiff;
+        
+      if (((Int32)Report.GetVariableValue(&quot;Page&quot;)) &gt;= 2)
+      {
+        Memo1.Top -= 0.5f;   //Инв.№ подл}
+        Memo26.Top -= 0.5f;
+        }
+        
+      Over_Line1.Top = PageHeader1.Height;
+      Over_Line2.Top = PageHeader1.Height;
+      Over_Line3.Top = PageHeader1.Height;
+      Over_Line4.Top = PageHeader1.Height;
+      Over_Line5.Top = PageHeader1.Height;
+      Over_Line6.Top = PageHeader1.Height;
+      Over_Line7.Top = PageHeader1.Height;
+      Over_Line8.Top = PageHeader1.Height;
+      Over_Line9.Top = PageHeader1.Height;
+      Over_Line10.Top = PageHeader1.Height;
+      Over_Line11.Top = PageHeader1.Height;
+      Over_Line12.Top = PageHeader1.Height;
+        
+      Over_Line1.Height = Overlay1.Height-PageHeader1.Height;
+      Over_Line2.Height = Overlay1.Height-PageHeader1.Height;
+      Over_Line3.Height = Overlay1.Height-PageHeader1.Height;
+      Over_Line4.Height = Overlay1.Height-PageHeader1.Height;
+      Over_Line5.Height = Overlay1.Height-PageHeader1.Height;
+      Over_Line6.Height = Overlay1.Height-PageHeader1.Height;
+      Over_Line7.Height = Overlay1.Height-PageHeader1.Height;
+      Over_Line8.Height = Overlay1.Height-PageHeader1.Height;
+      Over_Line9.Height = Overlay1.Height-PageHeader1.Height;
+      Over_Line10.Height = Overlay1.Height-PageHeader1.Height;
+      Over_Line11.Height = Overlay1.Height-PageHeader1.Height;
+      Over_Line12.Height = Overlay1.Height-PageHeader1.Height;
+        
+      for (int i = 0; i &lt; fList.Count; i++)
+      {
+        ((TextObject)fList[i]).Visible = false;
+      }
+        
+      for (int i = 0; i &lt; secList.Count; i++)
+      {
+        ((TextObject)secList[i]).Visible = true;
+      }
+      
+      Page2_Memo30.Top = Page2_Memo30.Top + 4f;
+      Page2_Memo31.Top = Page2_Memo30.Top;
+      Page2_Memo112.Top = Page2_Memo30.Top;
+      Page2_Memo115.Top = Page2_Memo30.Top;
+      Page2_Memo118.Top = Page2_Memo30.Top;
+ 
+      Page2_Memo55.Top = Page2_Memo55.Top + 4f;
+      Page2_Memo49.Top = Page2_Memo49.Top + 4f;
+  
+      Line27.Visible = true;
+      Line28.Visible = true;
+      Line29.Visible = true;
+      Line30.Visible = true;
+
+      sht_Line3.Visible = false;
+      sht_Line4.Visible = false;
+    }
+    
+    
+  #endregion    
+    
+    private void _StartReport(object sender, EventArgs e)
+    {
+      list = new List&lt;string&gt;();
+      slMemoName = new List&lt;string&gt;();
+      //MemoFake = new TextObject();
+        
+      GroupHeader1.KeepTogether = GROUPHEADER1_KEEPTOGETHER == 1;
+       // добавим пустую строку между наименованиями
+      Data1.RowCount = ADDSTR_BEETWEEN;       
+    }
+    
+    
+    public void GroupFooter3_BeforePrint(object sender, EventArgs e)
+    {
+      bool vs = nameNom &gt; 1;
+        
+      int priznakIsklucheniya = Convert.ToInt32(Report.GetColumnValue(&quot;cds_SQL.Признак исключения&quot;));
+      if (priznakIsklucheniya == 1)
+        vs = false;
+        
+      GroupFooter3.Visible = vs;
+    }
+
+
+    public void GroupHeader3_BeforePrint(object sender, EventArgs e)
+    {
+      nameNom = 0;
+    }
+
+
+    public void GroupHeader1_BeforePrint(object sender, EventArgs e)
+    {
+      string vidIzdeliya = ((string)Report.GetColumnValue(&quot;DATA.Вид Изделия&quot;));
+      GroupHeader1.Visible = !(string.IsNullOrEmpty(vidIzdeliya));
+      Child1.Visible = GroupHeader1.Visible &amp;&amp; (ADDSTR_BEETWEEN &gt; 0);
+    }
+    
+
+    public void MasterData1_BeforePrint(object sender, EventArgs e)
+    {        
+      nameNom++;
+      if (nameNom &gt; 1)
+      {
+        Memo14.Visible = false;
+        Memo17.Visible = false;
+      }
+      else
+      {
+        Memo14.Visible = true;
+        Memo17.Visible = true;
+      }
+
+    }
+    
+
+    public void Overlay1_BeforePrint(object sender, EventArgs e)
+    {
+      int p = ((Int32)Report.GetVariableValue(&quot;Page&quot;));
+      if (p &lt;= 2)
+      {
+        ArrayList fList = new ArrayList();
+        ArrayList secList = new ArrayList();
+        ArrayList overList = new ArrayList();
+            
+        FillMemosLists(fList, secList);
+            
+        if (p == 1)
+          PrintFirstPage(fList, secList);
+        else
+          PrintOtherPages(fList, secList);
+      }
+    }
+
+
+    private void Page1_FinishPage(object sender, EventArgs e)
+    {
+      Page2.Visible = false;
+    }
+
+
+    private void Memo14_BeforePrint(object sender, EventArgs e)
+    {
+      TextObject textObject = sender as TextObject;
+      if (textObject != null)
+      {  
+        string dataValue = ((string)Report.GetColumnValue(&quot;DATA.Наименование&quot;));
+        dataValue = &quot;раз: &quot;+dataValue + &quot; два: &quot;+dataValue +&quot; и три: &quot;+ dataValue;
+
+        Data1.RowCount = 0;
+        slMemoName = SplitByPixelLength(Memo14, NoWrapNTD(dataValue));       
+
+        if (slMemoName.Count &gt; 0)
+        {
+          // добавим пустую строку между наименованиями
+          for (int idx = 1; idx &lt;= ADDSTR_BEETWEEN; idx++)
+          {
+            slMemoName.Add(&quot;&quot;);
+          }
+          
+          textObject.Text = slMemoName[0];
+          Data1.RowCount = slMemoName.Count-1;
+        }
+        
+      }  
+    }
+    
+
+    private void Data1_BeforePrint(object sender, EventArgs e)
+    {
+      TextObject textObject = TextEnd as TextObject;
+      if (textObject != null)
+      {
+        textObject.Text = slMemoName[Data1.RowNo];
+      }
+      
+    }
+  }
+}
+</ScriptText>
+  <Dictionary>
+    <JsonDataSourceConnection Name="Connection" ConnectionString="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">
+      <JsonTableDataSource Name="JSON" Alias="DATA" DataType="FastReport.Utils.Json.JsonArray" Enabled="true" TableName="JSON" SimpleStructure="true">
+        <Column Name="Наименование" DataType="System.String"/>
+        <Column Name="Вид Изделия" DataType="System.Object"/>
+        <Column Name="Обозначение док-та на поставку" DataType="System.Object"/>
+        <Column Name="Типоразмер" DataType="System.Object"/>
+        <Column Name="Куда входит" DataType="System.String"/>
+        <Column Name="Код продукции" DataType="System.Object"/>
+        <Column Name="Поставщик" DataType="System.Object"/>
+        <Column Name="Количество/на изделие" DataType="System.Double"/>
+        <Column Name="Количество/в комплекты" DataType="System.Double"/>
+        <Column Name="Количество/на регулировку" DataType="System.Double"/>
+        <Column Name="Количество всего" DataType="System.Double"/>
+        <Column Name="Количество итого" DataType="System.Object"/>
+        <Column Name="ЕИ количества" DataType="System.Object"/>
+        <Column Name="ЕИ количества1" DataType="System.Object"/>
+        <Column Name="ЕИ количества2" DataType="System.Object"/>
+        <Column Name="ЕИ количества3" DataType="System.Object"/>
+        <Column Name="ЕИ количества4" DataType="System.Object"/>
+        <Column Name="Признак исключения" DataType="System.Double"/>
+        <Column Name="Изделие" DataType="System.String"/>
+        <Column Name="Наименование изделия" DataType="System.String"/>
+        <Column Name="Обозначение стандарта" DataType="System.Object"/>
+      </JsonTableDataSource>
+    </JsonDataSourceConnection>
+  </Dictionary>
+  <ReportPage Name="Page1" Landscape="true" PaperWidth="420" PaperHeight="297" LeftMargin="5" TopMargin="5" RightMargin="5" BottomMargin="5" Watermark.Font="Arial, 60pt" FinishPageEvent="Page1_FinishPage">
+    <PageHeaderBand Name="PageHeader1" Width="1549.8" Height="102.05">
+      <TextObject Name="Memo3" Left="56.69" Width="26.46" Height="102.05" Border.Lines="All" Border.Width="2" Text="№ строки" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Angle="270" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo4" Left="83.15" Width="226.77" Height="102.05" Border.Lines="Top, Bottom" Border.Width="2" Text="Наименование" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo5" Left="309.92" Width="170.08" Height="102.05" Border.Lines="All" Border.Width="2" Text="Код&#13;&#10;продукции" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo6" Left="480" Width="264.57" Height="102.05" Border.Lines="Top, Bottom" Border.Width="2" Text="Обозначение документа &#13;&#10;на поставку" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo7" Left="744.57" Width="207.87" Height="102.05" Border.Lines="Left, Top, Bottom" Border.Width="2" Text="Поставщик" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo8" Left="952.26" Width="264.57" Height="102.05" Border.Lines="Left, Top, Bottom" Border.Width="2" Text="Куда входит&#13;&#10;(обозначение)" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo9" Left="1217.1" Top="34.02" Width="60.47" Height="68.03" Border.Lines="All" Border.Width="2" Text="на изделие" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo10" Left="1277.58" Top="34.02" Width="60.47" Height="68.03" Border.Lines="Top, Bottom" Border.Width="2" Text="в ком-&#13;&#10;плекты" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo11" Left="1337.95" Top="34.02" Width="60.47" Height="68.03" Border.Lines="All" Border.Width="2" Text="на регу-&#13;&#10;лир." Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo12" Left="1398.43" Top="34.02" Width="60.47" Height="68.03" Border.Lines="Top, Bottom" Border.Width="2" Text="Всего" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo13" Left="1458.9" Width="90.71" Height="102.05" Border.Lines="All" Border.Width="2" Text="Примечание" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo15" Left="1217.01" Width="241.89" Height="34.02" Border.Lines="Left, Top" Border.Width="2" Text="Количество" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+    </PageHeaderBand>
+    <GroupHeaderBand Name="GroupHeader2" Top="107.38" Width="1549.8" Height="30.24" Visible="false" Condition="[DATA.Признак исключения]">
+      <GroupHeaderBand Name="GroupHeader1" Top="142.96" Width="1549.8" Height="30.24" Visible="false" BeforePrintEvent="GroupHeader1_BeforePrint" Condition="[DATA.Вид Изделия]" KeepTogether="true">
+        <TextObject Name="Memo40" Left="83.15" Width="226.77" Height="30.24" Text="[DATA.Вид Изделия]" Padding="2, 8, 2, 1" HorzAlign="Center" Font="GOST type B, 12pt, style=Italic, Underline"/>
+        <ChildBand Name="Child1" Top="178.53" Width="1549.8" Height="30.24" Visible="false"/>
+        <GroupHeaderBand Name="GroupHeader3" Top="214.1" Width="1549.8" Height="30.24" Visible="false" BeforePrintEvent="GroupHeader3_BeforePrint" Condition="[DATA.Наименование]+' '+[DATA.Обозначение док-та на поставку]">
+          <DataBand Name="MasterData1" Top="249.68" Width="1549.8" Height="30.24" CanGrow="true" CanShrink="true" BeforePrintEvent="MasterData1_BeforePrint" DataSource="JSON" PrintIfDetailEmpty="true">
+            <TextObject Name="Memo14" Left="83.15" Width="226.77" Height="30.24" CanGrow="true" CanShrink="true" BeforePrintEvent="Memo14_BeforePrint" Padding="2, 8, 2, 1" HorzAlign="Center" VertAlign="Center" WordWrap="false" Font="GOST type B, 12pt, style=Italic" ParagraphFormat.LineSpacing="31.37" ParagraphFormat.LineSpacingType="Exactly"/>
+            <TextObject Name="Memo16" Left="309.92" Width="170.08" Height="30.24" Text="[DATA.Код продукции]&#13;&#10;" Padding="2, 8, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+            <TextObject Name="Memo17" Left="480" Width="264.57" Height="30.24" Text="[DATA.Обозначение док-та на поставку]" Padding="2, 8, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+            <TextObject Name="Memo18" Left="744.57" Width="207.87" Height="30.24" Text="[DATA.Поставщик]" Padding="2, 8, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+            <TextObject Name="Memo19" Left="952.44" Width="264.57" Height="30.24" Text="[DATA.Куда входит]" Padding="2, 8, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+            <TextObject Name="Memo20" Left="1217.01" Width="60.47" Height="30.24" Text="[DATA.Количество/на изделие][Chr(32)]" Padding="2, 1, 2, 1" HideValue="0" HorzAlign="Right" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+            <TextObject Name="Memo21" Left="1277.48" Width="60.47" Height="30.24" Text="[DATA.Количество/в комплекты][Chr(32)]" Padding="2, 1, 2, 1" HideValue="0" HorzAlign="Right" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+            <TextObject Name="Memo22" Left="1337.95" Width="60.47" Height="30.24" Text="[DATA.Количество/на регулировку][Chr(32)]" Padding="2, 1, 2, 1" HideValue="0" HorzAlign="Right" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+            <TextObject Name="Memo23" Left="1398.43" Width="60.47" Height="30.24" Text="[DATA.Количество всего][Chr(32)]" Padding="2, 1, 2, 1" HideValue="0" HorzAlign="Right" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+            <TextObject Name="Memo24" Left="1458.9" Width="90.71" Height="30.24" Text="[DATA.ЕИ количества]" Padding="2, 1, 2, 1" Format="Number" Format.UseLocale="true" Format.DecimalDigits="2" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+            <TextObject Name="Memo2" Left="56.69" Width="26.46" Height="30.24" Padding="0, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+            <DataBand Name="Data1" Top="285.25" Width="1549.8" Height="30.24" BeforePrintEvent="Data1_BeforePrint" RowCount="0">
+              <TextObject Name="TextEnd" Left="83.05" Width="226.77" Height="30.24" CanGrow="true" CanShrink="true" Padding="2, 8, 2, 1" HorzAlign="Center" VertAlign="Center" WordWrap="false" Font="GOST type B, 12pt, style=Italic" ParagraphFormat.LineSpacing="31.37" ParagraphFormat.LineSpacingType="Exactly"/>
+            </DataBand>
+          </DataBand>
+          <GroupFooterBand Name="GroupFooter3" Top="320.82" Width="1549.8" Height="60.47" BeforePrintEvent="GroupFooter3_BeforePrint">
+            <TextObject Name="Memo93" Left="1398.43" Width="60.47" Height="30.24" Border.Lines="Top" Border.Width="2" Text="[DATA.Количество итого][Chr(32)]" Padding="2, 1, 2, 1" HideValue="0" HorzAlign="Right" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+          </GroupFooterBand>
+        </GroupHeaderBand>
+        <GroupFooterBand Name="GroupFooter1" Top="386.63" Width="1549.8" Height="30.24"/>
+      </GroupHeaderBand>
+      <GroupFooterBand Name="GroupFooter2" Top="422.2" Width="1549.8" Height="30.24"/>
+    </GroupHeaderBand>
+    <PageFooterBand Name="PageFooter1" Top="457.77" Width="1549.8" Height="188.98">
+      <TextObject Name="Page2_Memo55" Left="850.39" Top="56.54" Width="245.67" Height="18.9" Visible="false" Text="Копировал" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Page2_Memo114" Left="56.69" Width="1492.91" Height="56.69" Visible="false" Border.Lines="All" Border.Width="2" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo36" Left="850.39" Top="151.28" Width="245.67" Height="18.9" Border.Lines="Left, Right, Bottom" Text="Утв." Padding="2, 1, 2, 1" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo37" Left="850.39" Top="132.39" Width="245.67" Height="18.9" Border.Lines="All" Text="Н. контр." Padding="2, 1, 2, 1" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo48" Left="850.39" Top="113.49" Width="245.67" Height="18.9" Border.Lines="Left, Right" Padding="2, 1, 2, 1" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo50" Left="850.39" Top="94.59" Width="245.67" Height="18.9" Border.Lines="Left, Right, Bottom" Text="Пров." Padding="2, 1, 2, 1" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo51" Left="850.39" Top="75.59" Width="245.67" Height="18.9" Border.Lines="All" Text="Разраб." Padding="2, 1, 2, 1" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo52" Left="850.39" Top="56.8" Width="26.46" Height="18.9" Border.Lines="Left, Right, Bottom" Border.Width="2" Text="Изм." Padding="-4, 1, -2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo53" Left="876.85" Top="56.8" Width="37.8" Height="18.9" Border.Lines="Right, Bottom" Border.Width="2" Text="Лист" Padding="2, 1, 2, 1" AutoShrink="FontWidth" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo54" Left="850.39" Top="37.9" Width="26.46" Height="18.9" Border.Lines="Left, Right, Bottom" Border.Width="2" Padding="2, 1, 2, 1" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo56" Left="850.39" Top="18.9" Width="26.46" Height="18.9" Border.Lines="Left, Right, Bottom" Border.Width="2" Padding="2, 1, 2, 1" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo59" Left="914.65" Top="18.9" Width="86.93" Height="18.9" Border.Lines="Left, Right, Bottom" Border.Width="2" Padding="2, 1, 2, 1" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo60" Left="914.65" Top="37.8" Width="86.93" Height="18.9" Border.Lines="All" Border.Width="2" Padding="2, 1, 2, 1" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo61" Left="914.65" Top="56.69" Width="86.93" Height="18.9" Border.Lines="All" Border.Width="2" Text="№ Докум." Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo62" Left="914.65" Top="75.59" Width="86.93" Height="94.49" Border.Lines="All" Border.Width="2" Padding="2, 1, 2, 1" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo64" Left="1001.57" Top="37.8" Width="56.69" Height="18.9" Border.Lines="All" Border.Width="2" Padding="2, 1, 2, 1" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo65" Left="1001.57" Top="56.69" Width="56.69" Height="18.9" Border.Lines="All" Border.Width="2" Text="Подп." Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo66" Left="1001.57" Top="75.59" Width="56.69" Height="94.49" Border.Lines="All" Border.Width="2" Padding="2, 1, 2, 1" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo67" Left="1058.27" Top="18.9" Width="37.8" Height="18.9" Border.Lines="Left, Right, Bottom" Border.Width="2" Padding="2, 1, 2, 1" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo69" Left="1058.27" Top="56.69" Width="37.8" Height="18.9" Border.Lines="Left, Top, Bottom" Border.Width="2" Text="Дата" Padding="2, 1, 2, 1" AutoShrink="FontWidth" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo70" Left="1058.27" Top="75.59" Width="37.8" Height="94.49" Border.Lines="All" Border.Width="2" Padding="2, 1, 2, 1" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo71" Left="1096.06" Top="18.9" Width="453.54" Height="56.69" Border.Lines="Left, Right, Bottom" Border.Width="2" Text="[DATA.Изделие] ВП" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo74" Left="1474.02" Top="75.59" Width="75.59" Height="18.9" Border.Lines="All" Border.Width="2" Text="Листов" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo75" Left="1360.63" Top="75.59" Width="56.69" Height="18.9" Border.Lines="All" Border.Width="2" Text="Лит." Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo76" Left="1417.32" Top="75.59" Width="56.69" Height="18.9" Border.Lines="All" Border.Width="2" Text="Лист" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo77" Left="1398.5" Top="94.49" Width="18.9" Height="18.9" Border.Lines="Left, Right, Bottom" Border.Width="2" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo78" Left="1360.63" Top="94.49" Width="18.9" Height="18.9" Border.Lines="Left, Right, Bottom" Border.Width="2" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo79" Left="1379.1" Top="94.49" Width="18.9" Height="18.9" Border.Lines="Bottom" Border.Width="2" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo80" Left="1474.02" Top="94.49" Width="75.59" Height="18.9" Border.Lines="All" Border.Width="2" Text="[TotalPages#]" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo81" Left="1417.32" Top="94.49" Width="56.69" Height="18.9" Border.Lines="All" Border.Width="2" Text="[Page#]" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo90" Left="1360.63" Top="113.39" Width="188.98" Height="56.69" Border.Lines="All" Border.Width="2" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo91" Left="56.69" Top="154.96" Width="793.7" Height="15.12" Border.Lines="Bottom" Border.Width="2" Text=" " Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo92" Left="1096.06" Top="75.59" Width="264.57" Height="94.49" Border.Lines="Bottom" Border.Width="2" Text="[DATA.Наименование изделия]&#13;&#10;Ведомость покупных изделий" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Page2_Memo28" Left="1511.81" Top="26.46" Width="37.8" Height="30.24" Visible="false" Text="[Page#]" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Page2_Memo31" Left="876.85" Top="37.8" Width="37.8" Height="18.9" Visible="false" Border.Lines="All" Border.Width="2" Text="Лист" Padding="2, 1, 2, 1" AutoShrink="FontWidth" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Page2_Memo105" Left="850.39" Top="18.9" Width="26.46" Height="18.9" Visible="false" Border.Lines="Left, Bottom" Border.Width="2" Padding="2, 1, 2, 1" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Page2_Memo107" Left="850.39" Width="26.46" Height="18.9" Visible="false" Border.Lines="Left, Bottom" Border.Width="2" Padding="2, 1, 2, 1" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Page2_Memo109" Left="876.85" Top="18.9" Width="37.8" Height="18.9" Visible="false" Border.Lines="Left, Bottom" Border.Width="2" Padding="2, 1, 2, 1" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Page2_Memo110" Left="914.65" Width="86.93" Height="18.9" Visible="false" Border.Lines="Left, Bottom" Border.Width="2" Padding="2, 1, 2, 1" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Page2_Memo111" Left="914.65" Top="18.9" Width="86.93" Height="18.9" Visible="false" Border.Lines="Left, Bottom" Border.Width="2" Padding="2, 1, 2, 1" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Page2_Memo112" Left="914.65" Top="37.8" Width="86.93" Height="18.9" Visible="false" Border.Lines="All" Border.Width="2" Text="№ Докум." Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Page2_Memo113" Left="1001.58" Width="56.69" Height="18.9" Visible="false" Border.Lines="Left, Bottom" Border.Width="2" Padding="2, 1, 2, 1" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Page2_Memo115" Left="1001.57" Top="37.8" Width="56.69" Height="18.9" Visible="false" Border.Lines="All" Border.Width="2" Text="Подп." Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Page2_Memo116" Left="1058.27" Width="37.8" Height="18.9" Visible="false" Border.Lines="Left, Bottom" Border.Width="2" Padding="2, 1, 2, 1" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Page2_Memo117" Left="1058.27" Top="18.9" Width="37.8" Height="18.9" Visible="false" Border.Lines="Left, Bottom" Border.Width="2" Padding="2, 1, 2, 1" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Page2_Memo118" Left="1058.27" Top="37.8" Width="37.8" Height="18.9" Visible="false" Border.Lines="Left, Bottom" Border.Width="2" Text="Дата" Padding="2, 1, 2, 1" AutoShrink="FontWidth" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo57" Left="876.85" Top="37.8" Width="37.8" Height="18.9" Border.Lines="Right, Top, Bottom" Border.Width="2" Padding="2, 1, 2, 1" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo68" Left="1058.27" Top="37.8" Width="37.8" Height="18.9" Border.Lines="Left, Bottom" Border.Width="2" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Page2_Memo29" Left="1511.81" Width="37.8" Height="26.46" Visible="false" Border.Lines="All" Border.Width="2" CanShrink="true" Text="Лист" Padding="-4, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Page2_Memo32" Left="1096.2" Width="415.75" Height="56.7" Visible="false" Border.Lines="All" Border.Width="2" Text="[DATA.Изделие] ВП" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo28" Left="1360.63" Top="170.08" Width="188.98" Height="18.9" Border.Lines="Top" Border.Width="2" Text="Формат" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo29" Left="850.39" Top="170.08" Width="245.67" Height="18.9" Border.Lines="Top" Border.Width="2" Text="Копировал" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo39" Left="57.47" Top="18.9" Width="1387.09" Height="7.56" Border.Lines="Top" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Bold, Italic"/>
+      <LineObject Name="sht_Line3" Left="56.69" Top="18.9" Width="1492.91" Border.Width="2"/>
+      <LineObject Name="sht_Line4" Left="850.39" Top="75.59" Height="94.49" Border.Width="2"/>
+      <TextObject Name="Page2_Memo49" Left="1359.41" Top="56.54" Width="188.98" Height="18.9" Visible="false" Text="Формат" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Page2_Memo30" Left="850.5" Top="37.8" Width="26.46" Height="18.9" Visible="false" Border.Lines="Left, Right, Bottom" Border.Width="2" Text="Изм." Padding="-4, 1, -2, 1" HorzAlign="Center" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Page2_Memo108" Left="876.85" Width="37.8" Height="18.9" Visible="false" Border.Lines="Left, Bottom" Border.Width="2" Padding="2, 1, 2, 1" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Page2_Memo106" Left="1001.7" Top="18.9" Width="56.7" Height="18.9" Visible="false" Border.Lines="Left, Bottom" Border.Width="2" Padding="2, 1, 2, 1" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+    </PageFooterBand>
+    <OverlayBand Name="Overlay1" Top="652.09" Width="1549.8" Height="1065.73" BeforePrintEvent="Overlay1_BeforePrint">
+      <TextObject Name="Memo1" Left="11.34" Top="971.24" Width="18.9" Height="94.49" Border.Lines="Left, Top, Bottom" Border.Width="2" Text="Инв. № подл." Padding="2, 1, 2, -4" HorzAlign="Center" VertAlign="Center" Angle="270" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo26" Left="30.24" Top="971.24" Width="26.46" Height="94.49" Border.Lines="Left, Top, Bottom" Border.Width="2" Padding="2, 1, 2, 1" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo25" Left="11.34" Top="838.95" Width="18.9" Height="132.28" Border.Lines="Left, Top" Border.Width="2" Text="Подп. и дата" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Angle="270" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo27" Left="30.24" Top="838.95" Width="26.46" Height="132.28" Border.Lines="Left, Top" Border.Width="2" Padding="2, 1, 2, 1" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo30" Left="11.34" Top="744.33" Width="18.9" Height="94.49" Border.Lines="Left, Top" Border.Width="2" Text="Взам. Инв №" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Angle="270" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo31" Left="30.24" Top="744.33" Width="26.46" Height="94.49" Border.Lines="Left, Top" Border.Width="2" Padding="2, 1, 2, 1" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo32" Left="11.34" Top="649.98" Width="18.9" Height="94.49" Border.Lines="Left, Top" Border.Width="2" Text="Инв № дубл." Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Angle="270" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo33" Left="30.24" Top="649.98" Width="26.46" Height="94.49" Border.Lines="Left, Top" Border.Width="2" Padding="2, 1, 2, 1" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo34" Left="11.34" Top="517.69" Width="18.9" Height="132.28" Border.Lines="Left, Top" Border.Width="2" Text="Подп. и дата" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Angle="270" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo35" Left="30.24" Top="517.69" Width="26.46" Height="132.28" Border.Lines="Left, Top" Border.Width="2" Padding="2, 1, 2, 1" Font="GOST type B, 12pt, style=Italic"/>
+      <LineObject Name="Over_Line11" Left="56.7" Height="839.06" Border.Width="2"/>
+      <LineObject Name="Over_Line12" Left="1549.61" Height="918.43" Border.Width="2"/>
+      <TextObject Name="Over_Memo01" Left="56.69" Top="102.06" Width="26.46" Height="30.24" Text=" 1 " Padding="1, 1, 1, 1" VertAlign="Center" WordWrap="false" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Over_Memo02" Left="56.69" Top="132.3" Width="26.46" Height="30.24" Border.Color="" Text=" 2 " Padding="1, 1, 1, 1" VertAlign="Center" WordWrap="false" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Over_Memo03" Left="56.69" Top="162.54" Width="26.46" Height="30.24" Border.Lines="Left, Right, Bottom" Border.Color="" Text=" 3 " Padding="1, 1, 1, 1" VertAlign="Center" WordWrap="false" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Over_Memo04" Left="56.69" Top="192.78" Width="26.46" Height="30.24" Border.Lines="Left, Right, Bottom" Border.Color="" Text=" 4 " Padding="1, 1, 1, 1" VertAlign="Center" WordWrap="false" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Over_Memo05" Left="56.69" Top="223.02" Width="26.46" Height="30.24" Text=" 5 " Padding="1, 1, 1, 1" VertAlign="Center" WordWrap="false" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Over_Memo06" Left="56.69" Top="253.26" Width="26.46" Height="30.24" Border.Lines="Left, Right, Bottom" Border.Color="" Text=" 6 " Padding="1, 1, 1, 1" VertAlign="Center" WordWrap="false" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Over_Memo07" Left="56.69" Top="283.54" Width="26.46" Height="30.24" Text=" 7 " Padding="1, 1, 1, 1" VertAlign="Center" WordWrap="false" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Over_Memo08" Left="56.69" Top="313.74" Width="26.46" Height="30.24" Border.Color="" Text=" 8 " Padding="1, 1, 1, 1" VertAlign="Center" WordWrap="false" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Over_Memo09" Left="56.69" Top="343.98" Width="26.46" Height="30.24" Border.Color="Blue" Text=" 9 " Padding="1, 1, 1, 1" VertAlign="Center" WordWrap="false" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Over_Memo10" Left="56.69" Top="374.22" Width="26.46" Height="30.24" Border.Color="Blue" Text="10 " Padding="1, 1, 1, 1" VertAlign="Center" WordWrap="false" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Over_Memo11" Left="56.69" Top="404.46" Width="26.46" Height="30.24" Border.Lines="Left, Right, Bottom" Border.Color="" Text="11 " Padding="1, 1, 1, 1" VertAlign="Center" WordWrap="false" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Over_Memo12" Left="56.69" Top="434.7" Width="26.46" Height="30.24" Border.Lines="Left, Right, Bottom" Border.Color="" Text="12 " Padding="1, 1, 1, 1" VertAlign="Center" WordWrap="false" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Over_Memo13" Left="56.69" Top="464.94" Width="26.46" Height="30.24" Border.Lines="Left, Right, Bottom" Border.Color="" Text="13 " Padding="1, 1, 1, 1" VertAlign="Center" WordWrap="false" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Over_Memo14" Left="56.69" Top="495.18" Width="26.46" Height="30.24" Border.Lines="Left, Right, Bottom" Border.Color="" Text="14 " Padding="1, 1, 1, 1" VertAlign="Center" WordWrap="false" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Over_Memo15" Left="56.69" Top="525.42" Width="26.46" Height="30.24" Border.Lines="Left, Right, Bottom" Border.Color="" Text="15 " Padding="1, 1, 1, 1" VertAlign="Center" WordWrap="false" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Over_Memo16" Left="56.69" Top="555.66" Width="26.46" Height="30.24" Border.Lines="Left, Right, Bottom" Border.Color="" Text="16 " Padding="1, 1, 1, 1" VertAlign="Center" WordWrap="false" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Over_Memo17" Left="56.69" Top="585.9" Width="26.46" Height="30.24" Border.Lines="Left, Right, Bottom" Border.Color="" Text="17 " Padding="1, 1, 1, 1" VertAlign="Center" WordWrap="false" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Over_Memo18" Left="56.69" Top="616.14" Width="26.46" Height="30.24" Border.Lines="Left, Right, Bottom" Border.Color="" Text="18 " Padding="1, 1, 1, 1" VertAlign="Center" WordWrap="false" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Over_Memo19" Left="56.69" Top="646.38" Width="26.46" Height="30.24" Border.Lines="Left, Right, Bottom" Border.Color="" Text="19 " Padding="1, 1, 1, 1" VertAlign="Center" WordWrap="false" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Over_Memo20" Left="56.69" Top="676.62" Width="26.46" Height="30.24" Border.Lines="Left, Right, Bottom" Border.Color="" Text="20 " Padding="1, 1, 1, 1" VertAlign="Center" WordWrap="false" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Over_Memo21" Left="56.69" Top="706.86" Width="26.46" Height="30.24" Border.Lines="Left, Right, Bottom" Border.Color="" Text="21 " Padding="1, 1, 1, 1" VertAlign="Center" WordWrap="false" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Over_Memo22" Left="56.69" Top="737.1" Width="26.46" Height="30.24" Border.Lines="Left, Right, Bottom" Border.Color="" Text="22 " Padding="1, 1, 1, 1" VertAlign="Center" WordWrap="false" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Over_Memo23" Left="56.69" Top="767.34" Width="26.46" Height="30.24" Border.Lines="Left, Right, Bottom" Border.Color="" Text="23 " Padding="1, 1, 1, 1" VertAlign="Center" WordWrap="false" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Over_Memo24" Left="56.69" Top="797.58" Width="26.46" Height="30.24" Border.Lines="Left, Right, Bottom" Border.Color="" Text="24 " Padding="1, 1, 1, 1" VertAlign="Center" WordWrap="false" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Over_Memo25" Left="56.69" Top="827.82" Width="26.46" Height="30.24" Border.Lines="Left, Right, Bottom" Border.Color="" Text="25 " Padding="1, 1, 1, 1" VertAlign="Center" WordWrap="false" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Over_Memo26" Left="56.69" Top="858.06" Width="26.46" Height="30.24" Border.Lines="Left, Right, Bottom" Border.Color="" Text="26 " Padding="1, 1, 1, 1" VertAlign="Center" WordWrap="false" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Over_Memo27" Left="56.69" Top="888.39" Width="26.46" Height="30.24" Border.Lines="Left, Right" Border.Color="" Text="27 " Padding="1, 1, 1, 1" VertAlign="Center" WordWrap="false" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Over_Memo28" Left="56.69" Top="918.54" Width="26.46" Height="30.24" Border.Lines="All" Border.Color="" Text="28 " Padding="1, 1, 1, 1" VertAlign="Center" WordWrap="false" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Over_Memo29" Left="56.69" Top="948.78" Width="26.46" Height="30.24" Text="29 " Padding="1, 1, 1, 1" VertAlign="Center" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Over_Memo30" Left="56.69" Top="979.02" Width="26.46" Height="30.24" Visible="false" Border.Color="Blue" Text="30 " Padding="1, 1, 1, 1" VertAlign="Center" WordWrap="false" Font="GOST type B, 12pt, style=Italic" Clip="false"/>
+      <TextObject Name="Memo116" Left="11.34" Top="228.28" Width="18.9" Height="226.77" Border.Lines="Left, Top, Bottom" Border.Width="2" Text="Справ. №" Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Angle="270" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo117" Left="30.24" Top="228.28" Width="26.46" Height="226.77" Border.Lines="Left, Top, Bottom" Border.Width="2" Padding="2, 1, 2, 1" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo118" Left="11.34" Width="18.9" Height="226.77" Border.Lines="Left, Top" Border.Width="2" Text="Перв. примен." Padding="2, 1, 2, 1" HorzAlign="Center" VertAlign="Center" Angle="270" Font="GOST type B, 12pt, style=Italic"/>
+      <TextObject Name="Memo119" Left="30.24" Width="26.46" Height="226.77" Border.Lines="Left, Top" Border.Width="2" Padding="2, 1, 2, 1" Font="GOST type B, 12pt, style=Italic"/>
+      <LineObject Name="Over_Line1" Left="83.16" Height="812.7"/>
+      <LineObject Name="Over_Line2" Left="309.85" Height="812.7"/>
+      <LineObject Name="Over_Line3" Left="479.95" Height="812.7"/>
+      <LineObject Name="Over_Line4" Left="744.66" Height="812.7"/>
+      <LineObject Name="Over_Line5" Left="952.56" Height="812.7"/>
+      <LineObject Name="Over_Line6" Left="1217.05" Height="812.7"/>
+      <LineObject Name="Over_Line7" Left="1277.64" Height="812.7"/>
+      <LineObject Name="Over_Line8" Left="1338.12" Height="812.7"/>
+      <LineObject Name="Over_Line9" Left="1398.6" Height="812.7"/>
+      <LineObject Name="Over_Line10" Left="1459.08" Height="812.7"/>
+      <LineObject Name="Line1" Left="56.7" Top="132.3" Width="1493.1"/>
+      <LineObject Name="Line2" Left="56.7" Top="162.54" Width="1493.1"/>
+      <LineObject Name="Line9" Left="56.7" Top="374.22" Width="103.95"/>
+      <LineObject Name="Line10" Left="56.7" Top="404.46" Width="103.95"/>
+      <LineObject Name="Line11" Left="56.7" Top="434.7" Width="103.95"/>
+      <LineObject Name="Line12" Left="56.7" Top="464.94" Width="103.95"/>
+      <LineObject Name="Line13" Left="56.7" Top="495.18" Width="103.95"/>
+      <LineObject Name="Line14" Left="56.7" Top="525.42" Width="103.95"/>
+      <LineObject Name="Line15" Left="56.7" Top="555.66" Width="103.95"/>
+      <LineObject Name="Line16" Left="56.7" Top="585.9" Width="103.95"/>
+      <LineObject Name="Line17" Left="56.7" Top="616.2" Width="103.95"/>
+      <LineObject Name="Line18" Left="56.7" Top="646.55" Width="103.95"/>
+      <LineObject Name="Line19" Left="56.7" Top="676.62" Width="103.95"/>
+      <LineObject Name="Line20" Left="56.7" Top="706.86" Width="103.95"/>
+      <LineObject Name="Line21" Left="56.7" Top="737.1" Width="103.95"/>
+      <LineObject Name="Line22" Left="56.7" Top="767.22" Width="103.95"/>
+      <LineObject Name="Line23" Left="56.7" Top="797.58" Width="103.95"/>
+      <LineObject Name="Line24" Left="56.7" Top="827.82" Width="103.95"/>
+      <LineObject Name="Line25" Left="56.7" Top="858.06" Width="103.95"/>
+      <LineObject Name="Line26" Left="56.7" Top="888.3" Width="103.95"/>
+      <LineObject Name="Line27" Left="56.7" Top="918.54" Width="103.95"/>
+      <LineObject Name="Line28" Left="56.7" Top="948.78" Width="103.95"/>
+      <LineObject Name="Line29" Left="56.7" Top="979.02" Width="103.95"/>
+      <LineObject Name="Line30" Left="56.7" Top="1009.26" Width="103.95"/>
+      <LineObject Name="Line3" Left="56.7" Top="192.78" Width="1493.1"/>
+      <LineObject Name="Line4" Left="56.7" Top="223.02" Width="1493.1"/>
+      <LineObject Name="Line5" Left="56.7" Top="253.26" Width="1493.1"/>
+      <LineObject Name="Line6" Left="56.7" Top="283.5" Width="1493.1"/>
+      <LineObject Name="Line7" Left="56.7" Top="313.74" Width="103.95"/>
+      <LineObject Name="Line8" Left="56.7" Top="343.98" Width="103.95"/>
+    </OverlayBand>
+  </ReportPage>
+  <ReportPage Name="Page2" Landscape="true" PaperWidth="420" PaperHeight="297" Watermark.Font="Arial, 60pt" StartPageEvent="Page2_StartPage">
+    <ReportTitleBand Name="ReportTitle1" Width="1512" Height="75.59">
+      <TextObject Name="fM28" Width="1511.81" Height="75.59" CanGrow="true" CanShrink="true" Text="Исключаемые ДСЕ" Padding="2, 1, 2, 1" Font="GOST type B, 12pt, style=Italic"/>
+    </ReportTitleBand>
+  </ReportPage>
+</Report>
