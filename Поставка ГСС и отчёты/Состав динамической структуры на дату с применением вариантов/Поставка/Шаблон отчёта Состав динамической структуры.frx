@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" ReportInfo.Created="05/08/2026 17:47:33" ReportInfo.Modified="05/08/2026 17:47:33" ReportInfo.CreatorVersion="2026.1.3.0">
+  <Dictionary>
+    <JsonDataSourceConnection Name="Connection">
+      <JsonTableDataSource Name="JSON" Alias="DATA" DataType="FastReport.Utils.Json.JsonArray" Enabled="true" TableName="JSON" SimpleStructure="true">
+        <Column Name="idVersion" DataType="System.Int32"/>
+        <Column Name="idLink" DataType="System.Int32"/>
+        <Column Name="type" DataType="System.String"/>
+        <Column Name="product" DataType="System.String"/>
+        <Column Name="name" DataType="System.String"/>
+        <Column Name="versionNumber" DataType="System.String"/>
+        <Column Name="quantity" DataType="System.Double"/>
+        <Column Name="weight" DataType="System.String"/>
+        <Column Name="position" DataType="System.String"/>
+      </JsonTableDataSource>
+    </JsonDataSourceConnection>
+  </Dictionary>
+  <ReportPage Name="Page1" Landscape="true" PaperWidth="297" PaperHeight="210" RawPaperSize="9" Watermark.Font="Arial, 60pt">
+    <ReportTitleBand Name="ReportTitle1" Width="1046.92" Height="37.8" Border.Lines="Left, Right, Top">
+      <TextObject Name="Text1" Width="1046.92" Height="37.8" Dock="Fill" Text="Отчёт &quot;Состав динамической структуры&quot;" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 12pt, style=Bold"/>
+    </ReportTitleBand>
+    <PageHeaderBand Name="PageHeader1" Width="1046.92" Height="37.8" Border.Lines="Left, Right, Top">
+      <TextObject Name="Text2" Width="189" Height="37.8" Border.Lines="Right" Text="Тип" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 12pt"/>
+      <TextObject Name="Text4" Left="189" Width="264.6" Height="37.8" Border.Lines="Right" Text="Обозначение" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 12pt"/>
+      <TextObject Name="Text7" Left="453.6" Width="207.9" Height="37.8" Border.Lines="Right" Text="Наименование" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 12pt"/>
+      <TextObject Name="Text8" Left="661.5" Width="122.85" Height="37.8" Border.Lines="Right" Text="Номер версии" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 12pt"/>
+      <TextObject Name="Text11" Left="784.35" Width="94.5" Height="37.8" Border.Lines="Right" Text="Количество" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 12pt"/>
+      <TextObject Name="Text12" Left="878.85" Width="85.05" Height="37.8" Border.Lines="Right" Text="Масса" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 12pt"/>
+      <TextObject Name="Text13" Left="963.9" Width="85.05" Height="37.8" Text="Позиция" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 12pt"/>
+    </PageHeaderBand>
+    <DataBand Name="Data1" Width="1046.92" Height="37.8" Border.Lines="All" DataSource="JSON">
+      <TextObject Name="Text3" Width="189" Height="37.8" Border.Lines="Right" Text="[DATA.type]" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 12pt"/>
+      <TextObject Name="Text5" Left="189" Width="264.6" Height="37.8" Border.Lines="Right" Text="[DATA.product]" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 12pt"/>
+      <TextObject Name="Text6" Left="453.6" Width="207.9" Height="37.8" Border.Lines="Right" Text="[IIf([DATA.name] == &quot;&quot;, &quot;-&quot;, [DATA.name])]" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 12pt"/>
+      <TextObject Name="Text9" Left="661.5" Width="122.85" Height="37.8" Border.Lines="Right" Text="[IIf([DATA.versionNumber] == &quot;&quot;, &quot;-&quot;, [DATA.versionNumber])]" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 12pt"/>
+      <TextObject Name="Text14" Left="784.35" Width="94.5" Height="37.8" Border.Lines="Right" Text="[DATA.quantity]" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 12pt"/>
+      <TextObject Name="Text15" Left="878.85" Width="85.05" Height="37.8" Border.Lines="Right" Text="[IIf([DATA.weight] == &quot;&quot;, &quot;0&quot;, [DATA.weight])]" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 12pt"/>
+      <TextObject Name="Text16" Left="963.9" Width="85.05" Height="37.8" Text="[IIf([DATA.position] == &quot;&quot;, &quot;-&quot;, [DATA.position])]" HorzAlign="Center" VertAlign="Center" Font="Times New Roman, 12pt"/>
+    </DataBand>
+    <PageFooterBand Name="PageFooter1" Width="1046.92" Height="37.8">
+      <TextObject Name="Text10" Width="1046.92" Height="37.8" Dock="Fill" Text="Страница [Page#] из [TotalPages#]" Padding="2,0,10,10" HorzAlign="Right" VertAlign="Bottom" Font="Times New Roman, 12pt"/>
+    </PageFooterBand>
+  </ReportPage>
+</Report>
