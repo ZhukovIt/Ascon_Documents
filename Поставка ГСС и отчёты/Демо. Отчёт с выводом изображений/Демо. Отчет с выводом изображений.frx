@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ScriptLanguage="CSharp" ReportInfo.Created="06/20/2026 18:33:39" ReportInfo.Modified="06/20/2026 18:33:39" ReportInfo.CreatorVersion="2026.1.3.0">
+  <ScriptText>using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Data;
+using FastReport;
+using FastReport.Data;
+using FastReport.Dialog;
+using FastReport.Barcode;
+using FastReport.Table;
+using FastReport.Utils;
+
+namespace FastReport
+{
+  public class ReportScript
+  {
+      private void Data1_BeforePrint(object sender, EventArgs e)
+      {
+			byte[] img = (byte[])Report.GetColumnValue(&quot;DATA.image_img&quot;);
+			bool hasImage = img != null &amp;&amp; img.Length &gt; 0;
+
+			Picture1.Visible = hasImage;
+			Text15.Visible = !hasImage;
+      }
+
+      private void ReportTitle1_BeforePrint(object sender, EventArgs e)
+      {
+          string product = (string)Report.GetColumnValue(&quot;DATA.product&quot;);
+          string typeName = (string)Report.GetColumnValue(&quot;DATA.typeName&quot;);
+          string versionNumber = (string)Report.GetColumnValue(&quot;DATA.versionNumber&quot;);
+
+          string title = $&quot;{product} ({typeName})&quot;;
+          if (versionNumber != null)
+          {
+              title += $&quot;, версия {versionNumber}&quot;;
+          }
+
+          ReportTitleHelper.Title = title;
+      }
+  }
+}
+
+public static class ReportTitleHelper
+{
+    public static string Title { get; set; }
+}
+          
+public static class Loodsman_ImageConverterHelper
+{
+    public static byte[] FromBase64(object value)
+    {
+        if (value == null || value == DBNull.Value)
+            return null;
+
+        string base64 = Convert.ToString(value);
+        if (string.IsNullOrEmpty(base64))
+            return null;
+
+        try
+        {
+            return Convert.FromBase64String(base64);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+}
+            </ScriptText>
+  <Dictionary>
+    <JsonDataSourceConnection Name="Connection">
+      <JsonTableDataSource Name="DATA" DataType="FastReport.Utils.Json.JsonArray" PropName="JSON" Enabled="true" TableName="JSON" SimpleStructure="true">
+        <Column Name="typeName" DataType="System.String"/>
+        <Column Name="product" DataType="System.String"/>
+        <Column Name="versionNumber" DataType="System.Object"/>
+        <Column Name="name" DataType="System.Object"/>
+        <Column Name="image" DataType="System.Object"/>
+        <Column Name="image_img" DataType="System.Byte[]" Calculated="true" Expression="Loodsman_ImageConverterHelper.FromBase64([DATA.image])"/>
+      </JsonTableDataSource>
+    </JsonDataSourceConnection>
+  </Dictionary>
+  <ReportPage Name="Page1" Watermark.Font="Arial, 60pt">
+    <ReportTitleBand Name="ReportTitle1" Width="718.2" Height="37.8" BeforePrintEvent="ReportTitle1_BeforePrint">
+      <TextObject Name="Text5" Width="718.2" Height="37.8" Dock="Fill" Border.Lines="All" Text="[ReportTitleHelper.Title]" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+    </ReportTitleBand>
+    <PageHeaderBand Name="PageHeader1" Width="718.2" Height="37.8">
+      <TextObject Name="Text7" Width="151.18" Height="37.8" Border.Lines="Left, Right, Top" Text="Обозначение" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text9" Left="340.11" Width="377.95" Height="37.8" Border.Lines="Right, Top" Text="Изображение" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text10" Left="151.18" Width="75.59" Height="37.8" Border.Lines="Right, Top" Text="Версия" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text11" Left="226.75" Width="113.39" Height="37.8" Border.Lines="Right, Top" Text="Наименование" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+    </PageHeaderBand>
+    <DataBand Name="Data1" Width="718.2" Height="377.95" BeforePrintEvent="Data1_BeforePrint" DataSource="DATA">
+      <PictureObject Name="Picture1" Left="339.46" Top="-0.01" Width="377.95" Height="377.95" Visible="false" Border.Lines="Right, Top, Bottom" DataColumn="DATA.image_img" SizeMode="StretchImage"/>
+      <TextObject Name="Text1" Top="-0.01" Width="151.18" Height="377.95" Border.Lines="All" Text="[DATA.product] ([DATA.typeName])" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text3" Left="151.18" Width="75.59" Height="377.95" Border.Lines="Right, Top, Bottom" Text="[IIf([DATA.versionNumber] == null, &quot;-&quot;, [DATA.versionNumber])]" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text4" Left="226.78" Width="113.39" Height="377.95" Border.Lines="Right, Top, Bottom" Text="[IIf([DATA.name] == null, &quot;-&quot;, [DATA.name])]" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+      <TextObject Name="Text15" Left="340.16" Width="377.95" Height="377.95" Border.Lines="Right, Top, Bottom" Text="Изоображение отсутствует" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt"/>
+    </DataBand>
+    <PageFooterBand Name="PageFooter1" Width="718.2" Height="37.8">
+      <TextObject Name="Text14" Width="718.2" Height="37.8" Dock="Fill" Text="Страница [Page#] из [TotalPages#]" Padding="2,0,10,0" HorzAlign="Right" VertAlign="Center" Font="Arial, 10pt"/>
+    </PageFooterBand>
+  </ReportPage>
+</Report>

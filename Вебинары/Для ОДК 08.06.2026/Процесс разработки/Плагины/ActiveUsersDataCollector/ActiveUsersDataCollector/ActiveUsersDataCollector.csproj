@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+	<EnableDynamicLoading>true</EnableDynamicLoading>
+  </PropertyGroup>
+
+  <ItemGroup>
+	<FrameworkReference Include="Microsoft.AspNetCore.App" />	
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.1" />
+    <PackageReference Include="System.ServiceModel.Primitives" Version="8.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Ascon.Plm.AppServer.WebApi">
+      <HintPath>Ascon.Plm.AppServer.WebApi.dll</HintPath>
+    </Reference>
+    <Reference Include="Ascon.Plm.Common">
+      <HintPath>Ascon.Plm.Common.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
